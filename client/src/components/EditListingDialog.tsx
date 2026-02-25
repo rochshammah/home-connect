@@ -58,7 +58,12 @@ export function EditListingDialog({ listing }: EditListingDialogProps) {
 
   const onSubmit = (data: EditFormValues) => {
     mutate(
-      { id: listing.id, ...data, features },
+      { 
+        id: listing.id, 
+        ...data, 
+        price: data.price.toString(), // Convert price to string for decimal type
+        features 
+      },
       {
         onSuccess: () => {
           setOpen(false);
