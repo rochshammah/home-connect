@@ -56,7 +56,7 @@ export async function registerRoutes(
     try {
       const input = api.listings.create.input.parse({
         ...req.body,
-        landlordId: user.claims.sub // Force landlordId from session
+        landlordId: user.id // Force landlordId from session
       });
       
       const listing = await storage.createListing(input);
@@ -82,7 +82,7 @@ export async function registerRoutes(
     const existing = await storage.getListing(id);
     if (!existing) return res.status(404).json({ message: "Listing not found" });
     
-    if (existing.landlordId !== user.claims.sub) {
+    if (existing.landlordId !== user.id) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
@@ -111,7 +111,7 @@ export async function registerRoutes(
     const existing = await storage.getListing(id);
     if (!existing) return res.status(404).json({ message: "Listing not found" });
     
-    if (existing.landlordId !== user.claims.sub) {
+    if (existing.landlordId !== user.id) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
@@ -130,7 +130,7 @@ export async function registerRoutes(
     try {
       const input = api.applications.create.input.parse({
         ...req.body,
-        tenantId: user.claims.sub
+        tenantId: user.id
       });
       
       const application = await storage.createApplication(input);
@@ -156,7 +156,7 @@ export async function registerRoutes(
     const listing = await storage.getListing(listingId);
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     
-    if (listing.landlordId !== user.claims.sub) {
+    if (listing.landlordId !== user.id) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
@@ -169,7 +169,7 @@ export async function registerRoutes(
       return res.status(401).json({ message: "Unauthorized" });
     }
     const user = req.user as any;
-    const apps = await storage.getApplicationsByTenant(user.claims.sub);
+    const apps = await storage.getApplicationsByTenant(user.id);
     res.json(apps);
   });
 
@@ -222,7 +222,7 @@ export async function registerRoutes(
     const user = req.user as any;
     try {
       const input = api.auth.updateProfile.input.parse(req.body);
-      const updated = await storage.updateUserProfile(user.claims.sub, input);
+      const updated = await storage.updateUserProfile(user.id, input);
       res.json(updated);
     } catch (err) {
       if (err instanceof z.ZodError) {
