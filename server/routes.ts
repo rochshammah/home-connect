@@ -54,12 +54,16 @@ export async function registerRoutes(
       console.log("Creating listing for user:", user.id);
       console.log("Request body:", req.body);
       
-      const input = api.listings.create.input.parse({
-        ...req.body,
-        landlordId: user.id // Force landlordId from session
-      });
+      // Parse body (schema omits landlordId, so parse without it first)
+      const bodyData = api.listings.create.input.parse(req.body);
       
-      console.log("Parsed input:", input);
+      // Then add landlordId from session
+      const input = {
+        ...bodyData,
+        landlordId: user.id
+      } as any; // Type assertion since schema omits landlordId but we add it here
+      
+      console.log("Parsed input with landlordId:", input);
       const listing = await storage.createListing(input);
       res.status(201).json(listing);
     } catch (err) {
@@ -133,10 +137,14 @@ export async function registerRoutes(
     const user = req.user as any;
     
     try {
-      const input = api.applications.create.input.parse({
-        ...req.body,
+      // Parse body (schema omits tenantId)
+      const bodyData = api.applications.create.input.parse(req.body);
+      
+      // Add tenantId from session
+      const input = {
+        ...bodyData,
         tenantId: user.id
-      });
+      } as any;
       
       const application = await storage.createApplication(input);
       res.status(201).json(application);
