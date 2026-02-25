@@ -2,14 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, Search, FileText, Home } from "lucide-react";
 import { LoginDialog } from "@/components/LoginDialog";
-import { useNavigate } from "wouter";
 
 export default function LandingPage() {
   const [loginOpen, setLoginOpen] = useState(false);
-  const navigate = useNavigate();
 
   const handleLoginSuccess = () => {
-    navigate("/");
+    window.location.href = "/";
   };
 
   return (
