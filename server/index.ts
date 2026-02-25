@@ -14,11 +14,16 @@ declare module "http" {
 }
 
 // CORS configuration
+const corsOrigin = 
+  process.env.NODE_ENV === "production" 
+    ? process.env.FRONTEND_URL 
+      ? [process.env.FRONTEND_URL]
+      : (console.warn("⚠️  WARNING: FRONTEND_URL not set in production! CORS will not work properly. Session cookies will not be sent."), ["*"])
+    : ["http://localhost:5173", "http://localhost:5000"];
+
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" 
-      ? (process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : "*")
-      : ["http://localhost:5173", "http://localhost:5000"],
+    origin: corsOrigin,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
