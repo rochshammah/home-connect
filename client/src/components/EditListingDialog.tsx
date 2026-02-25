@@ -57,19 +57,27 @@ export function EditListingDialog({ listing }: EditListingDialogProps) {
   });
 
   const onSubmit = (data: EditFormValues) => {
-    mutate(
-      { 
-        id: listing.id, 
-        ...data, 
-        price: data.price.toString(), // Convert price to string for decimal type
-        features 
+    // Build update payload with only the fields we explicitly handle
+    // Price must be string, everything else is already correct
+    const updatePayload: Record<string, any> = {
+      id: listing.id,
+      title: data.title,
+      description: data.description,
+      address: data.address,
+      location: data.location,
+      price: data.price.toString(), // Ensure string
+      features: features, // Use the managed features state
+      status: data.status,
+    };
+    
+    // Log what we're sending to help debug
+    console.log("Sending update payload:", updatePayload);
+    
+    mutate(updatePayload as any, {
+      onSuccess: () => {
+        setOpen(false);
       },
-      {
-        onSuccess: () => {
-          setOpen(false);
-        },
-      }
-    );
+    });
   };
 
   const addFeature = () => {

@@ -96,17 +96,23 @@ export async function registerRoutes(
     }
 
     try {
+      console.log("Updating listing", id, "body:", req.body);
       const input = api.listings.update.input.parse(req.body);
+      console.log("Parsed update input:", input);
       const updated = await storage.updateListing(id, input);
       res.json(updated);
     } catch (err) {
        if (err instanceof z.ZodError) {
+        console.error("Update listing validation error:", err.errors);
         return res.status(400).json({
           message: err.errors[0].message,
           field: err.errors[0].path.join('.'),
+          details: err.errors,
         });
       }
-      res.status(500).json({ message: "Internal Server Error" });
+      const errorMessage = err instanceof Error ? err.message : "Internal Server Error";
+      console.error("Update listing error:", errorMessage);
+      res.status(500).json({ message: errorMessage });
     }
   });
 
