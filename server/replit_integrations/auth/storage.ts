@@ -22,7 +22,7 @@ class AuthStorage implements IAuthStorage {
     return user;
   }
 
-  async createUser(username: string, email: string, password: string): Promise<User> {
+  async createUser(username: string, email: string, password: string, role: string = "tenant"): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [user] = await db
       .insert(users)
@@ -30,6 +30,7 @@ class AuthStorage implements IAuthStorage {
         username,
         email,
         password: hashedPassword,
+        role: role as "landlord" | "tenant",
       })
       .returning();
     return user;

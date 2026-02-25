@@ -1,8 +1,9 @@
 import { useRoute, Link } from "wouter";
-import { useListing, useDeleteListing } from "@/hooks/use-listings";
+import { useListing, useDeleteListing, useUpdateListing } from "@/hooks/use-listings";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ApplicationDialog } from "@/components/ApplicationDialog";
+import { EditListingDialog } from "@/components/EditListingDialog";
 import { 
   MapPin, 
   DollarSign, 
@@ -10,7 +11,9 @@ import {
   Check, 
   Trash2, 
   Share2,
-  Calendar
+  Calendar,
+  ToggleLeft,
+  ToggleRight
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,6 +34,7 @@ export default function ListingDetails() {
   const { data: listing, isLoading } = useListing(id);
   const { user } = useAuth();
   const { mutate: deleteListing, isPending: isDeleting } = useDeleteListing();
+  const { mutate: updateListing, isPending: isUpdating } = useUpdateListing();
 
   if (isLoading) {
     return (
@@ -58,6 +62,13 @@ export default function ListingDetails() {
     if (confirm("Are you sure you want to delete this listing? This cannot be undone.")) {
       deleteListing(id);
       window.location.href = "/";
+    }
+  };
+
+  const handleToggleStatus = () => {
+    if (listing) {
+      const newStatus = listing.status === "available" ? "rented" : "available";
+      updateListing({ id: listing.id, status: newStatus });
     }
   };
 
@@ -159,6 +170,25 @@ export default function ListingDetails() {
                   <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm border border-yellow-100">
                     You are the owner of this listing.
                   </div>
+                  <EditListingDialog listing={listing} />
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={handleToggleStatus}
+                    disabled={isUpdating}
+                  >
+                    {listing.status === "available" ? (
+                      <>
+                        <ToggleRight className="w-4 h-4 mr-2" />
+                        Mark as Rented
+                      </>
+                    ) : (
+                      <>
+                        <ToggleLeft className="w-4 h-4 mr-2" />
+                        Mark as Available
+                      </>
+                    )}
+                  </Button>
                   <Button variant="outline" className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={handleDelete} disabled={isDeleting}>
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete Listing

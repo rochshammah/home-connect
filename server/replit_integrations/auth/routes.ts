@@ -9,7 +9,7 @@ export function registerAuthRoutes(app: Express): void {
   // Register route
   app.post("/api/auth/register", async (req: any, res) => {
     try {
-      const { username, email, password, confirmPassword } = req.body;
+      const { username, email, password, confirmPassword, role } = req.body;
 
       // Validation
       if (!username || !email || !password || !confirmPassword) {
@@ -24,14 +24,18 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(400).json({ message: "Password must be at least 6 characters" });
       }
 
+      if (!role || !["landlord", "tenant"].includes(role)) {
+        return res.status(400).json({ message: "Invalid role selection" });
+      }
+
       // Check if user exists
       const existingUser = await authStorage.getUserByUsername(username);
       if (existingUser) {
         return res.status(400).json({ message: "Username already taken" });
       }
 
-      // Create user
-      const user = await authStorage.createUser(username, email, password);
+      // Create user with role
+      const user = await authStorage.createUser(username, email, password, role);
 
       // Auto-login after registration
       req.login(user, (err: any) => {

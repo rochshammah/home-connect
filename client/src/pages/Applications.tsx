@@ -88,7 +88,7 @@ function LandlordApplications() {
   const [selectedListingId, setSelectedListingId] = useState<string>(initialListingId || "");
   
   const { data: applications, isLoading } = useListingApplications(Number(selectedListingId));
-  const { mutate: updateStatus } = useUpdateApplicationStatus();
+  const { mutate: updateStatus, isPending: isUpdating } = useUpdateApplicationStatus();
 
   return (
     <div className="space-y-8 animate-in-up">
@@ -153,15 +153,17 @@ function LandlordApplications() {
                       variant="outline" 
                       className="text-destructive hover:bg-destructive/10"
                       onClick={() => updateStatus({ id: app.id, status: 'rejected' })}
+                      disabled={isUpdating}
                     >
-                      <XCircle className="w-4 h-4 mr-2" />
+                      {isUpdating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <XCircle className="w-4 h-4 mr-2" />}
                       Reject
                     </Button>
                     <Button 
                       className="bg-green-600 hover:bg-green-700"
                       onClick={() => updateStatus({ id: app.id, status: 'accepted' })}
+                      disabled={isUpdating}
                     >
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      {isUpdating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
                       Accept
                     </Button>
                   </div>

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
 
 interface LoginDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function LoginDialog({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"landlord" | "tenant">("tenant");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -41,7 +43,7 @@ export function LoginDialog({
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
       const body = isLogin
         ? { username, password }
-        : { username, email, password, confirmPassword };
+        : { username, email, password, confirmPassword, role };
 
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: "POST",
@@ -67,9 +69,17 @@ export function LoginDialog({
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+      setRole("tenant");
       
       onOpenChange(false);
-      onLoginSuccess();
+      
+      // Invalidate auth query to trigger refetch
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      // Give a small delay for session to be established, then load user
+      setTimeout(() => {
+        onLoginSuccess();
+      }, 500);
     } catch (error) {
       toast({
         title: "Error",
@@ -147,6 +157,38 @@ export function LoginDialog({
                 required
                 disabled={isLoading}
               />
+            </div>
+          )}
+
+          {!isLogin && (
+            <div className="space-y-3">
+              <Label>I am a:</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole("tenant")}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    role === "tenant"
+                      ? "border-primary bg-primary/10 text-primary font-bold"
+                      : "border-border text-muted-foreground hover:border-primary/50"
+                  }`}
+                  disabled={isLoading}
+                >
+                  Tenant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole("landlord")}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    role === "landlord"
+                      ? "border-primary bg-primary/10 text-primary font-bold"
+                      : "border-border text-muted-foreground hover:border-primary/50"
+                  }`}
+                  disabled={isLoading}
+                >
+                  Landlord
+                </button>
+              </div>
             </div>
           )}
 
