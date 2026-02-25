@@ -73,13 +73,11 @@ export function LoginDialog({
       
       onOpenChange(false);
       
-      // Invalidate auth query to trigger refetch
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Refetch user to update auth state and wait for it to complete
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
       
-      // Give a small delay for session to be established, then load user
-      setTimeout(() => {
-        onLoginSuccess();
-      }, 500);
+      // Now redirect to dashboard
+      onLoginSuccess();
     } catch (error) {
       toast({
         title: "Error",
