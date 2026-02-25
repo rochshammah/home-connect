@@ -3,13 +3,16 @@ import { api, buildUrl } from "@shared/routes";
 import type { InsertApplication, Application } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
+const getApiUrl = () => import.meta.env.VITE_API_URL || '';
+
 export function useCreateApplication() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (data: InsertApplication) => {
-      const res = await fetch(api.applications.create.path, {
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}${api.applications.create.path}`, {
         method: api.applications.create.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -44,7 +47,8 @@ export function useMyApplications() {
   return useQuery({
     queryKey: [api.applications.listMyApplications.path],
     queryFn: async () => {
-      const res = await fetch(api.applications.listMyApplications.path, { credentials: "include" });
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}${api.applications.listMyApplications.path}`, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch applications");
       return api.applications.listMyApplications.responses[200].parse(await res.json());
     },
@@ -55,7 +59,8 @@ export function useListingApplications(listingId: number) {
   return useQuery({
     queryKey: [api.applications.listByListing.path, listingId],
     queryFn: async () => {
-      const url = buildUrl(api.applications.listByListing.path, { id: listingId });
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}${api.applications.listByListing.path}`.replace(':id', listingId.toString());
       const res = await fetch(url, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch applications");
       return api.applications.listByListing.responses[200].parse(await res.json());
@@ -70,7 +75,8 @@ export function useUpdateApplicationStatus() {
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: number; status: "accepted" | "rejected" }) => {
-      const url = buildUrl(api.applications.updateStatus.path, { id });
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}${api.applications.updateStatus.path}`.replace(':id', id.toString());
       const res = await fetch(url, {
         method: api.applications.updateStatus.method,
         headers: { "Content-Type": "application/json" },

@@ -3,6 +3,8 @@ import { api, buildUrl } from "@shared/routes";
 import type { InsertListing, ListingWithLandlord } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
+const getApiUrl = () => import.meta.env.VITE_API_URL || '';
+
 export function useListings(filters?: { search?: string; location?: string; minPrice?: string; maxPrice?: string }) {
   // Construct query key including filters so refetch happens on change
   const queryKey = [api.listings.list.path, filters];
@@ -11,7 +13,8 @@ export function useListings(filters?: { search?: string; location?: string; minP
     queryKey,
     queryFn: async () => {
       // Build URL with query params
-      const url = buildUrl(api.listings.list.path);
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}${api.listings.list.path}`;
       const searchParams = new URLSearchParams();
       if (filters?.search) searchParams.append("search", filters.search);
       if (filters?.location) searchParams.append("location", filters.location);
@@ -30,7 +33,8 @@ export function useListing(id: number) {
   return useQuery({
     queryKey: [api.listings.get.path, id],
     queryFn: async () => {
-      const url = buildUrl(api.listings.get.path, { id });
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}${api.listings.get.path}`.replace(':id', id.toString());
       const res = await fetch(url, { credentials: "include" });
       if (res.status === 404) return null;
       if (!res.ok) throw new Error("Failed to fetch listing");
@@ -46,7 +50,8 @@ export function useCreateListing() {
 
   return useMutation({
     mutationFn: async (data: InsertListing) => {
-      const res = await fetch(api.listings.create.path, {
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}${api.listings.create.path}`, {
         method: api.listings.create.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -83,7 +88,8 @@ export function useUpdateListing() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: number } & Partial<InsertListing>) => {
-      const url = buildUrl(api.listings.update.path, { id });
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}${api.listings.update.path}`.replace(':id', id.toString());
       const res = await fetch(url, {
         method: api.listings.update.method,
         headers: { "Content-Type": "application/json" },
@@ -122,7 +128,8 @@ export function useDeleteListing() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const url = buildUrl(api.listings.delete.path, { id });
+      const apiUrl = getApiUrl();
+      const url = `${apiUrl}${api.listings.delete.path}`.replace(':id', id.toString());
       const res = await fetch(url, {
         method: api.listings.delete.method,
         credentials: "include",
