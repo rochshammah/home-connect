@@ -12,6 +12,7 @@ export function redirectToLogin(toast?: (options: { title: string; description: 
     });
   }
   setTimeout(() => {
-    window.location.href = "/api/login";
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    window.location.href = `${apiUrl}/api/login`;
   }, 500);
 }

@@ -3,7 +3,8 @@ import { ArrowRight, CheckCircle, Search, Key, Home } from "lucide-react";
 
 export default function LandingPage() {
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    window.location.href = `${apiUrl}/api/login`;
   };
 
   return (
