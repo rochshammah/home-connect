@@ -17,7 +17,7 @@ declare module "http" {
 app.use(
   cors({
     origin: process.env.NODE_ENV === "production" 
-      ? ["https://home-connect-five.vercel.app"]
+      ? (process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : "*")
       : ["http://localhost:5173", "http://localhost:5000"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],

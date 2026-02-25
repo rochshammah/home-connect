@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Search, FileText, Home } from "lucide-react";
+import { ArrowRight, CheckCircle, Search, FileText, Home, Lock } from "lucide-react";
 import { LoginDialog } from "@/components/LoginDialog";
 
 export default function LandingPage() {
@@ -104,7 +104,7 @@ export default function LandingPage() {
             
             <div className="bg-card p-8 rounded-2xl border border-border/50 shadow-sm hover:shadow-xl transition-all duration-300">
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6">
-                <Key className="w-6 h-6" />
+                <Lock className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold mb-3">Direct Connection</h3>
               <p className="text-muted-foreground leading-relaxed">
