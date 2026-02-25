@@ -41,34 +41,39 @@ export async function registerRoutes(
   });
 
   app.post(api.listings.create.path, async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    const user = req.user as any;
-    // Optional: Check if user is landlord. We might want to allow anyone to become landlord by creating listing?
-    // Or strictly enforce role. Let's strictly enforce role or auto-upgrade?
-    // For now, let's assume UI handles enforcing, but backend should check.
-    // Ideally we fetch the user from storage to check role.
-    
-    // We can't trust req.user for role if it's not in claims, but we store it in DB.
-    // Let's rely on basic auth for now.
-    
     try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = req.user as any;
+      
+      if (!user?.id) {
+        return res.status(400).json({ message: "User ID not found in session" });
+      }
+      
+      console.log("Creating listing for user:", user.id);
+      console.log("Request body:", req.body);
+      
       const input = api.listings.create.input.parse({
         ...req.body,
         landlordId: user.id // Force landlordId from session
       });
       
+      console.log("Parsed input:", input);
       const listing = await storage.createListing(input);
       res.status(201).json(listing);
     } catch (err) {
+      console.error("Create listing error:", err);
       if (err instanceof z.ZodError) {
+        console.error("Zod validation errors:", err.errors);
         return res.status(400).json({
           message: err.errors[0].message,
           field: err.errors[0].path.join('.'),
+          errors: err.errors,
         });
       }
-      res.status(500).json({ message: "Internal Server Error" });
+      const errorMessage = err instanceof Error ? err.message : "Internal Server Error";
+      res.status(500).json({ message: errorMessage });
     }
   });
 
