@@ -8,7 +8,9 @@
     "build": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:migrate": "tsx script/migrate.ts",
+    "build:prod": "npm run build && npm run db:migrate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
