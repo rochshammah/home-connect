@@ -1,17 +1,37 @@
 import { users, type User, type UpsertUser } from "@shared/models/auth";
 import { db } from "../../db";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 // Interface for auth storage operations
-// (IMPORTANT) These user operations are mandatory for Replit Auth.
 export interface IAuthStorage {
   getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(username: string, email: string, password: string): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
 }
 
 class AuthStorage implements IAuthStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(username: string, email: string, password: string): Promise<User> {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [user] = await db
+      .insert(users)
+      .values({
+        username,
+        email,
+        password: hashedPassword,
+      })
+      .returning();
     return user;
   }
 

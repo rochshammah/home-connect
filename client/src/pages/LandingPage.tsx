@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Search, Key, Home } from "lucide-react";
+import { ArrowRight, CheckCircle, Search, FileText, Home } from "lucide-react";
+import { LoginDialog } from "@/components/LoginDialog";
+import { useNavigate } from "wouter";
 
 export default function LandingPage() {
-  const handleLogin = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    window.location.href = `${apiUrl}/api/login`;
+  const [loginOpen, setLoginOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLoginSuccess = () => {
+    navigate("/");
   };
 
   return (
@@ -18,8 +23,8 @@ export default function LandingPage() {
               <span className="font-display font-bold text-xl tracking-tight">RentConnect</span>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={handleLogin}>Log In</Button>
-              <Button onClick={handleLogin}>Get Started</Button>
+              <Button variant="ghost" onClick={() => setLoginOpen(true)}>Log In</Button>
+              <Button onClick={() => setLoginOpen(true)}>Get Started</Button>
             </div>
           </div>
         </div>
@@ -37,11 +42,11 @@ export default function LandingPage() {
               Connect directly with landlords, apply securely, and manage your rental journey all in one place. No hidden fees.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="text-lg h-14 px-8 shadow-lg shadow-primary/25" onClick={handleLogin}>
+              <Button size="lg" className="text-lg h-14 px-8 shadow-lg shadow-primary/25" onClick={() => setLoginOpen(true)}>
                 Start Browsing
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button variant="outline" size="lg" className="text-lg h-14 px-8" onClick={handleLogin}>
+              <Button variant="outline" size="lg" className="text-lg h-14 px-8" onClick={() => setLoginOpen(true)}>
                 List a Property
               </Button>
             </div>
@@ -118,6 +123,8 @@ export default function LandingPage() {
           <p>© 2024 RentConnect. All rights reserved.</p>
         </div>
       </footer>
+
+      <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} onLoginSuccess={handleLoginSuccess} />
     </div>
   );
 }

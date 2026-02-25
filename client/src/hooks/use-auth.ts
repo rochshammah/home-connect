@@ -20,7 +20,16 @@ async function fetchUser(): Promise<User | null> {
 
 async function logout(): Promise<void> {
   const apiUrl = import.meta.env.VITE_API_URL || '';
-  window.location.href = `${apiUrl}/api/logout`;
+  const response = await fetch(`${apiUrl}/api/logout`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Logout failed");
+  }
+
+  // Reload to clear session and redirect to login
+  window.location.href = "/";
 }
 
 export function useAuth() {
